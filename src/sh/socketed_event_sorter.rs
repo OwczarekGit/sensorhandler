@@ -96,8 +96,9 @@ impl SocketedEventSorter {
                     escState = 0;
                 }
 
-                vOsuInput.set_k1_state(xState);
-                vOsuInput.set_k2_state(zState);
+                vOsuInput.set_k1_state(zState);
+                vOsuInput.exec_event();
+                vOsuInput.set_k2_state(xState);
                 vOsuInput.exec_event();
                 vOsuInput.set_back_state(escState);
                 vOsuInput.set_skip_state(spaceState);
