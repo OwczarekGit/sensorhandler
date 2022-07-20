@@ -97,9 +97,7 @@ impl SocketedEventSorter {
                 }
 
                 vOsuInput.set_k1_state(zState);
-                vOsuInput.exec_event();
                 vOsuInput.set_k2_state(xState);
-                vOsuInput.exec_event();
                 vOsuInput.set_back_state(escState);
                 vOsuInput.set_skip_state(spaceState);
                 vOsuInput.set_random_map_state(f2State);
@@ -143,11 +141,8 @@ impl SocketedEventSorter {
                 }
 
                 vPointer.pressLMB(LMBState);
-                vPointer.execEvent();
                 vPointer.pressRMB(RMBState);
-                vPointer.execEvent();
                 vPointer.moveX(deltaX);
-                vPointer.execEvent();
                 vPointer.moveY(deltaY);
                 vPointer.execEvent();
 
