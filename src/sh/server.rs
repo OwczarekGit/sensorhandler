@@ -71,6 +71,8 @@ impl Server {
 
         if protocol.is_none() || data.is_none() { return; }
 
+        // println!("{}", data.unwrap());
+
         if let Some(protocol) = protocol{
             match Protocol::from_str(protocol) {
                 Protocol::Osu => senders.osu_sender.send(data.unwrap().to_string()).unwrap(),

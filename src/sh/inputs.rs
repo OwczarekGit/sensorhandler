@@ -235,6 +235,7 @@ pub fn start_mouse_input(receiver: mpsc::Receiver<String>){
     thread::spawn(move || {
 
         let speed_multiplier = 8.0;
+        let scroll_speed_multiplier = 10.0;
 
         let mut buttons = AttributeSet::<Key>::new();
         buttons.insert(Key::BTN_LEFT);
@@ -258,9 +259,10 @@ pub fn start_mouse_input(receiver: mpsc::Receiver<String>){
         loop{
             if let Ok(message) = receiver.recv(){
                 let mut data = message.split(';');
+
                 let motion_x = data.next();
                 let motion_y = data.next();
-                // let delta_wheel = message.split(";").next();
+                let delta_wheel = data.next();
                 let button_state = data.next();
 
                 let mut events: Vec<InputEvent> = vec![];
@@ -277,6 +279,14 @@ pub fn start_mouse_input(receiver: mpsc::Receiver<String>){
                     if let Ok(dy) = motion_y.to_string().parse::<f32>(){
                         if dy.abs() > 0.0 {
                             events.push(InputEvent::new(EventType::RELATIVE, RelativeAxisType::REL_Y.0, -(dy * speed_multiplier) as i32));
+                        }
+                    }
+                }
+
+                if let Some(delta_wheel) = delta_wheel {
+                    if let Ok(d) = delta_wheel.to_string().parse::<f32>(){
+                        if d.abs() > 0f32 {
+                            events.push(InputEvent::new(EventType::RELATIVE, RelativeAxisType::REL_WHEEL.0, (d * scroll_speed_multiplier) as i32));
                         }
                     }
                 }
