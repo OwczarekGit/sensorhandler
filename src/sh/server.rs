@@ -29,7 +29,6 @@ impl Server {
         self.senders = Some(senders);
     }
 
-    // #[you_can::turn_off_the_borrow_checker]
     pub fn start(&mut self){
         println!("Starting a server…");
         match &self.listener {
