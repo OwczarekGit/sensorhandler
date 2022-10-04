@@ -149,17 +149,47 @@ pub fn start_keyboard_input(receiver: mpsc::Receiver<String>){
 
         // Misc
         {
+            keys.insert(Key::KEY_EQUAL);
+            keys.insert(Key::KEY_MINUS);
+            keys.insert(Key::KEY_LEFTBRACE);
+            keys.insert(Key::KEY_RIGHTBRACE);
+            keys.insert(Key::KEY_SEMICOLON);
+            keys.insert(Key::KEY_APOSTROPHE);
+            keys.insert(Key::KEY_BACKSLASH);
+            keys.insert(Key::KEY_COMMA);
+            keys.insert(Key::KEY_DOT);
+            keys.insert(Key::KEY_SLASH);
+
             keys.insert(Key::KEY_ESC);
             keys.insert(Key::KEY_GRAVE);
             keys.insert(Key::KEY_SPACE);
             keys.insert(Key::KEY_ENTER);
             keys.insert(Key::KEY_TITLE);
             keys.insert(Key::KEY_LEFTSHIFT);
+            keys.insert(Key::KEY_RIGHTSHIFT);
             keys.insert(Key::KEY_LEFTALT);
+            keys.insert(Key::KEY_RIGHTALT);
             keys.insert(Key::KEY_LEFTCTRL);
+            keys.insert(Key::KEY_RIGHTCTRL);
             keys.insert(Key::KEY_TAB);
             keys.insert(Key::KEY_BACKSPACE);
             keys.insert(Key::KEY_CAPSLOCK);
+
+            keys.insert(Key::KEY_UP);
+            keys.insert(Key::KEY_DOWN);
+            keys.insert(Key::KEY_LEFT);
+            keys.insert(Key::KEY_RIGHT);
+
+            keys.insert(Key::KEY_INSERT);
+            keys.insert(Key::KEY_DELETE);
+            keys.insert(Key::KEY_HOME);
+            keys.insert(Key::KEY_END);
+            keys.insert(Key::KEY_PAGEUP);
+            keys.insert(Key::KEY_PAGEDOWN);
+
+            keys.insert(Key::KEY_PRINT);
+            keys.insert(Key::KEY_SCROLLLOCK);
+            keys.insert(Key::KEY_PAUSE);
         }
 
         // Function keys
@@ -249,7 +279,35 @@ pub fn start_keyboard_input(receiver: mpsc::Receiver<String>){
             KeyInputU128::new(58, Key::KEY_TAB),
             KeyInputU128::new(59, Key::KEY_CAPSLOCK),
 
+            KeyInputU128::new(60, Key::KEY_UP),
+            KeyInputU128::new(61, Key::KEY_DOWN),
+            KeyInputU128::new(62, Key::KEY_LEFT),
+            KeyInputU128::new(63, Key::KEY_RIGHT),
 
+            KeyInputU128::new(64, Key::KEY_RIGHTALT),
+            KeyInputU128::new(65, Key::KEY_RIGHTCTRL),
+            KeyInputU128::new(66, Key::KEY_RIGHTSHIFT),
+
+            KeyInputU128::new(67, Key::KEY_MINUS),
+            KeyInputU128::new(68, Key::KEY_EQUAL),
+            KeyInputU128::new(69, Key::KEY_LEFTBRACE),
+            KeyInputU128::new(70, Key::KEY_RIGHTBRACE),
+            KeyInputU128::new(71, Key::KEY_SEMICOLON),
+            KeyInputU128::new(72, Key::KEY_APOSTROPHE),
+            KeyInputU128::new(73, Key::KEY_BACKSLASH),
+            KeyInputU128::new(74, Key::KEY_COMMA),
+            KeyInputU128::new(75, Key::KEY_DOT),
+            KeyInputU128::new(76, Key::KEY_SLASH),
+
+            KeyInputU128::new(77, Key::KEY_INSERT),
+            KeyInputU128::new(78, Key::KEY_DELETE),
+            KeyInputU128::new(79, Key::KEY_HOME),
+            KeyInputU128::new(80, Key::KEY_END),
+            KeyInputU128::new(81, Key::KEY_PAGEUP),
+            KeyInputU128::new(82, Key::KEY_PAGEDOWN),
+            KeyInputU128::new(83, Key::KEY_PRINT),
+            KeyInputU128::new(84, Key::KEY_SCROLLLOCK),
+            KeyInputU128::new(85, Key::KEY_PAUSE),
         ];
 
         loop {
@@ -279,7 +337,7 @@ pub fn start_mouse_input(receiver: mpsc::Receiver<String>){
         let mut buttons = AttributeSet::<Key>::new();
         buttons.insert(Key::BTN_LEFT);
         buttons.insert(Key::BTN_RIGHT);
-        // buttons.insert(Key::BTN_MIDDLE);
+        buttons.insert(Key::BTN_MIDDLE);
 
         let mut motion = AttributeSet::<RelativeAxisType>::new();
         motion.insert(RelativeAxisType::REL_X);
@@ -292,8 +350,9 @@ pub fn start_mouse_input(receiver: mpsc::Receiver<String>){
             .with_relative_axes(&motion).expect("Failed to create relative axes for mouse.")
             .build().unwrap();
 
-        let mut button_left = KeyInputU128::new(0, Key::BTN_LEFT);
-        let mut button_right = KeyInputU128::new(1, Key::BTN_RIGHT);
+        let mut button_left = KeyInputU8::new(0, Key::BTN_LEFT);
+        let mut button_right = KeyInputU8::new(1, Key::BTN_RIGHT);
+        let mut button_middle = KeyInputU8::new(2, Key::BTN_MIDDLE);
 
         loop{
             if let Ok(message) = receiver.recv(){
@@ -331,13 +390,16 @@ pub fn start_mouse_input(receiver: mpsc::Receiver<String>){
                 }
 
                 if let Some(button_state) = button_state{
-                    if let Ok(button_state) = button_state.parse::<u128>(){
+                    if let Ok(button_state) = button_state.parse::<u8>(){
 
                         button_left.extract_value_from_mask(button_state);
                         events.push(button_left.get_event());
 
                         button_right.extract_value_from_mask(button_state);
                         events.push(button_right.get_event());
+
+                        button_middle.extract_value_from_mask(button_state);
+                        events.push(button_middle.get_event());
                     }
                 }
 
