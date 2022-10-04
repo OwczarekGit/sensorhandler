@@ -13,18 +13,45 @@ pub fn create_channels() -> (Senders, mpsc::Receiver<String>, mpsc::Receiver<Str
 }
 
 #[derive(Debug)]
-pub struct KeyInput{
+pub struct KeyInputU128 {
     mask: u128,
     key: Key,
     current_state: u8,
 }
 
-impl KeyInput {
+impl KeyInputU128 {
     pub fn new(bit: u8, key: Key) -> Self{
         Self{ mask: 0u128 | (1 << bit), key, current_state: 0 }
     }
 
     pub fn extract_value_from_mask(&mut self, mask: u128) {
+        if self.mask & mask > 0{
+            self.current_state = 1;
+        }else {
+            self.current_state = 0;
+        }
+
+    }
+
+    pub fn get_event(&mut self) -> InputEvent{
+        InputEvent::new(EventType::KEY, self.key.0, self.current_state as i32)
+    }
+}
+
+
+#[derive(Debug)]
+pub struct KeyInputU8 {
+    mask: u8,
+    key: Key,
+    current_state: u8,
+}
+
+impl KeyInputU8 {
+    pub fn new(bit: u8, key: Key) -> Self{
+        Self{ mask: 0u8 | (1 << bit), key, current_state: 0 }
+    }
+
+    pub fn extract_value_from_mask(&mut self, mask: u8) {
         if self.mask & mask > 0{
             self.current_state = 1;
         }else {
@@ -50,12 +77,12 @@ pub fn start_osu_input(receiver: mpsc::Receiver<String>){
             .with_keys(&keys).expect("Failed to init keys for osu! input.")
             .build().unwrap();
 
-        let mut z_key = KeyInput::new(0, Key::KEY_Z);
-        let mut x_key = KeyInput::new(1, Key::KEY_X);
+        let mut z_key = KeyInputU8::new(0, Key::KEY_Z);
+        let mut x_key = KeyInputU8::new(1, Key::KEY_X);
 
         loop{
             if let Ok(message) = receiver.recv(){
-                if let Ok(converted) = message.parse::<u128>(){
+                if let Ok(converted) = message.parse::<u8>(){
 
                     let mut events: Vec<InputEvent> = vec![];
 
@@ -66,7 +93,7 @@ pub fn start_osu_input(receiver: mpsc::Receiver<String>){
                     events.push(x_key.get_event());
 
 
-                    device.emit(&events).unwrap();
+                    let _ = device.emit(&events).unwrap();
                 }
             }
         }
@@ -157,70 +184,70 @@ pub fn start_keyboard_input(receiver: mpsc::Receiver<String>){
             .build().unwrap();
 
         let mut keys = [
-            KeyInput::new(0,  Key::KEY_0),
-            KeyInput::new(1,  Key::KEY_1),
-            KeyInput::new(2,  Key::KEY_2),
-            KeyInput::new(3,  Key::KEY_3),
-            KeyInput::new(4,  Key::KEY_4),
-            KeyInput::new(5,  Key::KEY_5),
-            KeyInput::new(6,  Key::KEY_6),
-            KeyInput::new(7,  Key::KEY_7),
-            KeyInput::new(8,  Key::KEY_8),
-            KeyInput::new(9, Key::KEY_9),
+            KeyInputU128::new(0, Key::KEY_0),
+            KeyInputU128::new(1, Key::KEY_1),
+            KeyInputU128::new(2, Key::KEY_2),
+            KeyInputU128::new(3, Key::KEY_3),
+            KeyInputU128::new(4, Key::KEY_4),
+            KeyInputU128::new(5, Key::KEY_5),
+            KeyInputU128::new(6, Key::KEY_6),
+            KeyInputU128::new(7, Key::KEY_7),
+            KeyInputU128::new(8, Key::KEY_8),
+            KeyInputU128::new(9, Key::KEY_9),
 
-            KeyInput::new(10, Key::KEY_A),
-            KeyInput::new(11, Key::KEY_B),
-            KeyInput::new(12, Key::KEY_C),
-            KeyInput::new(13, Key::KEY_D),
-            KeyInput::new(14, Key::KEY_E),
-            KeyInput::new(15, Key::KEY_F),
-            KeyInput::new(16, Key::KEY_G),
-            KeyInput::new(17, Key::KEY_H),
-            KeyInput::new(18, Key::KEY_I),
-            KeyInput::new(19, Key::KEY_J),
-            KeyInput::new(20, Key::KEY_K),
-            KeyInput::new(21, Key::KEY_L),
-            KeyInput::new(22, Key::KEY_M),
-            KeyInput::new(23, Key::KEY_N),
-            KeyInput::new(24, Key::KEY_O),
-            KeyInput::new(25, Key::KEY_P),
-            KeyInput::new(26, Key::KEY_Q),
-            KeyInput::new(27, Key::KEY_R),
-            KeyInput::new(28, Key::KEY_S),
-            KeyInput::new(29, Key::KEY_T),
-            KeyInput::new(30, Key::KEY_U),
-            KeyInput::new(31, Key::KEY_V),
-            KeyInput::new(32, Key::KEY_W),
-            KeyInput::new(33, Key::KEY_X),
-            KeyInput::new(34, Key::KEY_Y),
-            KeyInput::new(35, Key::KEY_Z),
+            KeyInputU128::new(10, Key::KEY_A),
+            KeyInputU128::new(11, Key::KEY_B),
+            KeyInputU128::new(12, Key::KEY_C),
+            KeyInputU128::new(13, Key::KEY_D),
+            KeyInputU128::new(14, Key::KEY_E),
+            KeyInputU128::new(15, Key::KEY_F),
+            KeyInputU128::new(16, Key::KEY_G),
+            KeyInputU128::new(17, Key::KEY_H),
+            KeyInputU128::new(18, Key::KEY_I),
+            KeyInputU128::new(19, Key::KEY_J),
+            KeyInputU128::new(20, Key::KEY_K),
+            KeyInputU128::new(21, Key::KEY_L),
+            KeyInputU128::new(22, Key::KEY_M),
+            KeyInputU128::new(23, Key::KEY_N),
+            KeyInputU128::new(24, Key::KEY_O),
+            KeyInputU128::new(25, Key::KEY_P),
+            KeyInputU128::new(26, Key::KEY_Q),
+            KeyInputU128::new(27, Key::KEY_R),
+            KeyInputU128::new(28, Key::KEY_S),
+            KeyInputU128::new(29, Key::KEY_T),
+            KeyInputU128::new(30, Key::KEY_U),
+            KeyInputU128::new(31, Key::KEY_V),
+            KeyInputU128::new(32, Key::KEY_W),
+            KeyInputU128::new(33, Key::KEY_X),
+            KeyInputU128::new(34, Key::KEY_Y),
+            KeyInputU128::new(35, Key::KEY_Z),
 
-            KeyInput::new(36, Key::KEY_F1),
-            KeyInput::new(37, Key::KEY_F2),
-            KeyInput::new(38, Key::KEY_F3),
-            KeyInput::new(39, Key::KEY_F4),
-            KeyInput::new(40, Key::KEY_F5),
-            KeyInput::new(41, Key::KEY_F6),
-            KeyInput::new(42, Key::KEY_F7),
-            KeyInput::new(43, Key::KEY_F8),
-            KeyInput::new(44, Key::KEY_F9),
-            KeyInput::new(45, Key::KEY_F10),
-            KeyInput::new(46, Key::KEY_F11),
-            KeyInput::new(47, Key::KEY_F12),
+            KeyInputU128::new(36, Key::KEY_F1),
+            KeyInputU128::new(37, Key::KEY_F2),
+            KeyInputU128::new(38, Key::KEY_F3),
+            KeyInputU128::new(39, Key::KEY_F4),
+            KeyInputU128::new(40, Key::KEY_F5),
+            KeyInputU128::new(41, Key::KEY_F6),
+            KeyInputU128::new(42, Key::KEY_F7),
+            KeyInputU128::new(43, Key::KEY_F8),
+            KeyInputU128::new(44, Key::KEY_F9),
+            KeyInputU128::new(45, Key::KEY_F10),
+            KeyInputU128::new(46, Key::KEY_F11),
+            KeyInputU128::new(47, Key::KEY_F12),
 
-            KeyInput::new(48, Key::KEY_ESC),
-            KeyInput::new(49, Key::KEY_GRAVE),
-            KeyInput::new(50, Key::KEY_SPACE),
-            KeyInput::new(51, Key::KEY_ENTER),
-            KeyInput::new(52, Key::KEY_TITLE),
+            KeyInputU128::new(48, Key::KEY_ESC),
+            KeyInputU128::new(49, Key::KEY_GRAVE),
+            KeyInputU128::new(50, Key::KEY_SPACE),
+            KeyInputU128::new(51, Key::KEY_ENTER),
+            KeyInputU128::new(52, Key::KEY_TITLE),
 
-            KeyInput::new(53, Key::KEY_LEFTALT),
-            KeyInput::new(54, Key::KEY_LEFTMETA),
-            KeyInput::new(55, Key::KEY_LEFTCTRL),
-            KeyInput::new(56, Key::KEY_LEFTSHIFT),
-            KeyInput::new(57, Key::KEY_BACKSPACE),
-            KeyInput::new(58, Key::KEY_TAB),
-            KeyInput::new(59, Key::KEY_CAPSLOCK),
+            KeyInputU128::new(53, Key::KEY_LEFTALT),
+            KeyInputU128::new(54, Key::KEY_LEFTMETA),
+            KeyInputU128::new(55, Key::KEY_LEFTCTRL),
+            KeyInputU128::new(56, Key::KEY_LEFTSHIFT),
+            KeyInputU128::new(57, Key::KEY_BACKSPACE),
+            KeyInputU128::new(58, Key::KEY_TAB),
+            KeyInputU128::new(59, Key::KEY_CAPSLOCK),
 
 
         ];
@@ -236,7 +263,7 @@ pub fn start_keyboard_input(receiver: mpsc::Receiver<String>){
                         events.push(key.get_event());
                     }
 
-                    device.emit(&events);
+                    let _ = device.emit(&events);
                 }
             }
         }
@@ -265,8 +292,8 @@ pub fn start_mouse_input(receiver: mpsc::Receiver<String>){
             .with_relative_axes(&motion).expect("Failed to create relative axes for mouse.")
             .build().unwrap();
 
-        let mut button_left = KeyInput::new(0, Key::BTN_LEFT);
-        let mut button_right = KeyInput::new(1, Key::BTN_RIGHT);
+        let mut button_left = KeyInputU128::new(0, Key::BTN_LEFT);
+        let mut button_right = KeyInputU128::new(1, Key::BTN_RIGHT);
 
         loop{
             if let Ok(message) = receiver.recv(){
@@ -314,7 +341,7 @@ pub fn start_mouse_input(receiver: mpsc::Receiver<String>){
                     }
                 }
 
-                device.emit(&events);
+                let _ = device.emit(&events);
             }
         }
     });
