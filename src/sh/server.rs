@@ -1,6 +1,7 @@
-use std::thread;
-use std::net::{TcpListener, TcpStream};
 use std::io::{BufRead, BufReader};
+use std::net::{TcpListener, TcpStream};
+use std::thread;
+
 use super::senders::Senders;
 
 pub struct Server {
