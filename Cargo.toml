@@ -6,7 +6,12 @@ edition = "2021"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 [dependencies]
 clap = { version = "4.0.4", features = ["derive"] }
+
+[target.x86_64-unknown-linux-gnu.dependencies]
 evdev = "0.12.0"
+
+[target.x86_64-pc-windows-gnu.dependencies]
+winapi = { version = "0.3.9", features = ["winuser"] }
 
 [profile.release]
 opt-level = 3
