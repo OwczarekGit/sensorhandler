@@ -1,7 +1,7 @@
 use std::sync::mpsc;
-use evdev::{AttributeSet, InputEvent, Key};
+use evdev::{AttributeSet, EventType, InputEvent, Key};
 use evdev::uinput::VirtualDeviceBuilder;
-use crate::sh_linux::linux::key_input::KeyInputU8;
+use crate::sh::key_input::KeyInputU8;
 
 pub fn start_osu_input(receiver: mpsc::Receiver<String>){
 
@@ -23,12 +23,12 @@ pub fn start_osu_input(receiver: mpsc::Receiver<String>){
 
                 let mut events: Vec<InputEvent> = vec![];
 
-                if let Some(event) = z_key.get_event(converted) {
-                    events.push(event);
+                if let Some((key, state)) = z_key.get_event(converted) {
+                    events.push(InputEvent::new(EventType::KEY, key.code(), state));
                 }
 
-                if let Some(event) = x_key.get_event(converted) {
-                    events.push(event);
+                if let Some((key, state)) = x_key.get_event(converted) {
+                    events.push(InputEvent::new(EventType::KEY, key.code(), state));
                 }
 
                 let _ = device.emit(&events).unwrap();

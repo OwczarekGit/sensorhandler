@@ -1,9 +1,9 @@
 use std::sync::mpsc;
 
-use evdev::{AttributeSet, InputEvent, Key};
+use evdev::{AttributeSet, EventType, InputEvent, Key};
 use evdev::uinput::VirtualDeviceBuilder;
 
-use crate::sh_linux::linux::key_input::KeyInputU128;
+use crate::sh::key_input::KeyInputU128;
 
 pub fn start_keyboard_input(receiver: mpsc::Receiver<String>){
     let mut keys = AttributeSet::<Key>::new();
@@ -221,8 +221,8 @@ pub fn start_keyboard_input(receiver: mpsc::Receiver<String>){
                 let mut events: Vec<InputEvent> = vec![];
 
                 for key in keys.iter_mut() {
-                    if let Some(event) = key.get_event(converted){
-                        events.push(event);
+                    if let Some((key, state)) = key.get_event(converted){
+                        events.push(InputEvent::new(EventType::KEY, key.code(), state));
                     }
                 }
 
