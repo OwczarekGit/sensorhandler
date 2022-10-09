@@ -1,16 +1,4 @@
-use std::sync::mpsc;
-
 use evdev::{EventType, InputEvent, Key};
-
-use super::senders::Senders;
-
-pub fn create_channels() -> (Senders, mpsc::Receiver<String>, mpsc::Receiver<String>, mpsc::Receiver<String>){
-    let (keyboard_sender, keyboard_receiver) = mpsc::channel::<String>();
-    let (osu_sender, osu_receiver) = mpsc::channel::<String>();
-    let (mouse_sender,mouse_receiver) = mpsc::channel::<String>();
-
-    (Senders{osu_sender, keyboard_sender, mouse_sender }, osu_receiver, keyboard_receiver, mouse_receiver)
-}
 
 #[test]
 fn should_fire_only_second_time(){

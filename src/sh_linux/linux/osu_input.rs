@@ -1,7 +1,7 @@
 use std::sync::mpsc;
 use evdev::{AttributeSet, InputEvent, Key};
 use evdev::uinput::VirtualDeviceBuilder;
-use super::key_input::KeyInputU8;
+use crate::sh_linux::linux::key_input::KeyInputU8;
 
 pub fn start_osu_input(receiver: mpsc::Receiver<String>){
 
