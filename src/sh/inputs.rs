@@ -12,6 +12,20 @@ pub fn create_channels() -> (Senders, mpsc::Receiver<String>, mpsc::Receiver<Str
     (Senders{osu_sender, keyboard_sender, mouse_sender }, osu_receiver, keyboard_receiver, mouse_receiver)
 }
 
+#[test]
+fn should_fire_only_second_time(){
+    let data1 = 0b0001;
+    let data2 = 0b0011;
+    let data3 = 0b0000;
+    let data4 = 0b1111;
+    let mut key = KeyInputU128::new(0, Key::KEY_T);
+
+    assert!(key.get_event(data1).is_some());
+    assert!(key.get_event(data2).is_none());
+    assert!(key.get_event(data3).is_some());
+    assert!(key.get_event(data4).is_some());
+}
+
 #[derive(Debug)]
 pub struct KeyInputU128 {
     mask: u128,
@@ -24,17 +38,15 @@ impl KeyInputU128 {
         Self{ mask: 0u128 | (1 << bit), key, current_state: 0 }
     }
 
-    pub fn extract_value_from_mask(&mut self, mask: u128) {
-        if self.mask & mask > 0{
-            self.current_state = 1;
-        }else {
-            self.current_state = 0;
+    pub fn get_event(&mut self, mask: u128) -> Option<InputEvent>{
+        let state = if self.mask & mask > 0 {1} else {0};
+
+        if self.current_state == state {
+            return None;
         }
 
-    }
-
-    pub fn get_event(&mut self) -> InputEvent{
-        InputEvent::new(EventType::KEY, self.key.0, self.current_state as i32)
+        self.current_state = state;
+        return Some(InputEvent::new(EventType::KEY, self.key.0, self.current_state as i32));
     }
 }
 
@@ -51,17 +63,15 @@ impl KeyInputU8 {
         Self{ mask: 0u8 | (1 << bit), key, current_state: 0 }
     }
 
-    pub fn extract_value_from_mask(&mut self, mask: u8) {
-        if self.mask & mask > 0{
-            self.current_state = 1;
-        }else {
-            self.current_state = 0;
+    pub fn get_event(&mut self, mask: u8) -> Option<InputEvent>{
+        let state = if self.mask & mask > 0 {1} else {0};
+
+        if self.current_state == state {
+            return None;
         }
 
-    }
-
-    pub fn get_event(&mut self) -> InputEvent{
-        InputEvent::new(EventType::KEY, self.key.0, self.current_state as i32)
+        self.current_state = state;
+        return Some(InputEvent::new(EventType::KEY, self.key.0, self.current_state as i32));
     }
 }
 
@@ -86,12 +96,13 @@ pub fn start_osu_input(receiver: mpsc::Receiver<String>){
 
                     let mut events: Vec<InputEvent> = vec![];
 
-                    z_key.extract_value_from_mask(converted);
-                    events.push(z_key.get_event());
+                    if let Some(event) = z_key.get_event(converted) {
+                        events.push(event);
+                    }
 
-                    x_key.extract_value_from_mask(converted);
-                    events.push(x_key.get_event());
-
+                    if let Some(event) = x_key.get_event(converted) {
+                        events.push(event);
+                    }
 
                     let _ = device.emit(&events).unwrap();
                 }
@@ -317,8 +328,9 @@ pub fn start_keyboard_input(receiver: mpsc::Receiver<String>){
                     let mut events: Vec<InputEvent> = vec![];
 
                     for key in keys.iter_mut() {
-                        key.extract_value_from_mask(converted);
-                        events.push(key.get_event());
+                        if let Some(event) = key.get_event(converted){
+                            events.push(event);
+                        }
                     }
 
                     let _ = device.emit(&events);
@@ -392,14 +404,17 @@ pub fn start_mouse_input(receiver: mpsc::Receiver<String>){
                 if let Some(button_state) = button_state{
                     if let Ok(button_state) = button_state.parse::<u8>(){
 
-                        button_left.extract_value_from_mask(button_state);
-                        events.push(button_left.get_event());
+                        if let Some(event) = button_left.get_event(button_state){
+                            events.push(event);
+                        }
 
-                        button_right.extract_value_from_mask(button_state);
-                        events.push(button_right.get_event());
+                        if let Some(event) = button_right.get_event(button_state){
+                            events.push(event);
+                        }
 
-                        button_middle.extract_value_from_mask(button_state);
-                        events.push(button_middle.get_event());
+                        if let Some(event) = button_middle.get_event(button_state){
+                            events.push(event);
+                        }
                     }
                 }
 
