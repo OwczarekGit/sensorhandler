@@ -1,3 +1,6 @@
+### ! This project is not developed anymore !
+Use [inputstream](https://github.com/OwczarekGit/inputstream) as an alternative.
+
 # sensorhandler
 Server for converting data received through socket to input.
 
